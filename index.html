@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>txtimg</title>
+  <style>
+  h3, p {
+    margin: 1ex 0;
+  }
+  textarea {
+    box-sizing: border-box;
+    width: 502px;
+    height: 100px;
+  }
+  canvas {
+    border: 1px solid #999;
+  }
+  p {
+    width: 500px;
+  }
+  footer {
+    font-size: 90%;
+    color: #777;
+  }
+  </style>
+</head>
+<body>
+  <label>
+    <h3>txt</h3>
+    <textarea id="input"></textarea>
+  </label>
+  <h3>img</h3>
+  <canvas></canvas>
+  <h3>txt&rarr;img</h3>
+  <p>
+    Each non-whitespace character in <b>txt</b> becomes a dark pixel in <b>img</b>.
+    Line feeds are interpreted as vertical translation, tabs and spaces as horizontal translation.
+  </p>
+  <p>
+    All ASCII characters receive a unique pixel alpha (higher order characters cap out at opaque black),
+    so the resulting image could be mapped back to the original text without too much trouble.
+  </p>
+  <footer>
+    by Christopher Brown
+    &middot; <a href="https://twitter.com/chbrown">@chbrown</a>
+    &middot; <a href="http://henrian.com">henrian.com</a>
+    &middot; <a href="http://chbrown.github.io/licenses/MIT/#2015">MIT Licensed</a>
+    &middot; <a href="https://github.com/chbrown/txtimg">on GitHub</a>
+  </footer>
+</body>
+<script>
+"use strict";
+const textarea = document.querySelector('textarea');
+textarea.addEventListener('keyup', ev => {
+  let txtString = localStorage.input = ev.target.value;
+  drawString(txtString);
+});
+
+document.addEventListener('readystatechange', ev => {
+  if (ev.target.readyState === 'interactive') {
+    let txtString = textarea.value = localStorage.input || '';
+    if (txtString === '' && typeof fetch !== 'undefined') {
+      fetch('https://cdn.rawgit.com/torvalds/linux/master/lib/string.c')
+      .then(res => res.text())
+      .then(text => {
+        localStorage.input = text;
+        drawString(text);
+      })
+      .catch(reason => {
+        console.error(reason);
+      });
+    }
+    else {
+      drawString(txtString);
+    }
+  }
+});
+
+let width = 500;
+let height = 500;
+
+const canvas = document.querySelector('canvas');
+canvas.width = width;
+canvas.height = height;
+const ctx = canvas.getContext('2d');
+
+const tabWidth = 4;
+
+function drawString(txtString) {
+  let x = 0;
+  let y = 0;
+  let chr;
+  // Uint8ClampedArray is initialized to all 0's
+  // when interpreted by ImageData, in RGBA order, that means transparent black
+  let array = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0, l = txtString.length; i < l; i++) {
+    chr = txtString.charCodeAt(i);
+    if (chr === 10) { // \n
+      y++;
+      x = 0;
+    }
+    else if (chr === 13 && txtString.charCodeAt(i + 1) === 10) { // \r\n
+      y++;
+      x = 0;
+      i++;
+    }
+    else if (chr === 9) { // \t
+      x += tabWidth;
+    }
+    else if (chr === 32) { // space
+      x++;
+    }
+    else { // anything else gets a dark pixel
+      if (x < width && y < height) {
+        let offset = ((y * width) + x) * 4;
+        array[offset+3] = chr * 2;
+        x++;
+      }
+    }
+  }
+  let imageData = new ImageData(array, width, height);
+  ctx.putImageData(imageData, 0, 0);
+}
+</script>
+</html>
