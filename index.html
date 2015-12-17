@@ -63,7 +63,7 @@ document.addEventListener('readystatechange', ev => {
       fetch('https://cdn.rawgit.com/torvalds/linux/master/lib/string.c')
       .then(res => res.text())
       .then(text => {
-        localStorage.input = text;
+        localStorage.input = textarea.value = text;
         drawString(text);
       })
       .catch(reason => {
