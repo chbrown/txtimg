@@ -13,7 +13,7 @@
     height: 100px;
   }
   canvas {
-    border: 1px solid #999;
+    border: 1px solid #EEE;
   }
   p {
     width: 500px;
@@ -60,7 +60,7 @@ document.addEventListener('readystatechange', ev => {
   if (ev.target.readyState === 'interactive') {
     let txtString = textarea.value = localStorage.input || '';
     if (txtString === '' && typeof fetch !== 'undefined') {
-      fetch('https://cdn.rawgit.com/torvalds/linux/master/lib/string.c')
+      fetch('https://cdn.rawgit.com/chbrown/txtimg/gh-pages/index.html')
       .then(res => res.text())
       .then(text => {
         localStorage.input = textarea.value = text;
