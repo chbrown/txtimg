@@ -7,13 +7,12 @@ document.addEventListener('readystatechange', function (ev) {
     if (ev.target['readyState'] === 'interactive') {
         var txtString = textarea.value = localStorage['input'] || '';
         if (txtString === '' && typeof fetch !== 'undefined') {
-            fetch('https://cdn.rawgit.com/chbrown/txtimg/gh-pages/index.html')
+            fetch('https://chbrown.github.io/txtimg/index.html')
                 .then(function (res) { return res.text(); })
                 .then(function (text) {
                 localStorage['input'] = textarea.value = text;
                 drawString(text);
-            })
-                .catch(function (reason) {
+            })["catch"](function (reason) {
                 console.error(reason);
             });
         }
@@ -39,22 +38,22 @@ function drawString(txtString) {
     var array = new Uint8ClampedArray(width * height * 4);
     for (var i = 0, l = txtString.length; i < l; i++) {
         chr = txtString.charCodeAt(i);
-        if (chr === 10) {
+        if (chr === 10) { // \n
             y++;
             x = 0;
         }
-        else if (chr === 13 && txtString.charCodeAt(i + 1) === 10) {
+        else if (chr === 13 && txtString.charCodeAt(i + 1) === 10) { // \r\n
             y++;
             x = 0;
             i++;
         }
-        else if (chr === 9) {
+        else if (chr === 9) { // \t
             x += tabWidth;
         }
-        else if (chr === 32) {
+        else if (chr === 32) { // space
             x++;
         }
-        else {
+        else { // anything else gets a dark pixel
             if (x < width && y < height) {
                 var offset = ((y * width) + x) * 4;
                 array[offset + 3] = chr * 2;

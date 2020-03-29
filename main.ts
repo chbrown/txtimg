@@ -9,7 +9,7 @@ document.addEventListener('readystatechange', ev => {
   if (ev.target['readyState'] === 'interactive') {
     let txtString = textarea.value = localStorage['input'] || '';
     if (txtString === '' && typeof fetch !== 'undefined') {
-      fetch('https://cdn.rawgit.com/chbrown/txtimg/gh-pages/index.html')
+      fetch('https://chbrown.github.io/txtimg/index.html')
       .then(res => res.text())
       .then(text => {
         localStorage['input'] = textarea.value = text;
